@@ -18,7 +18,7 @@ import { UserEntity } from './user/interfaces/user.entity';
       port: Number(process.env.DB_PORT),
       entities: [__dirname + '/**/*.entity{.js,.ts}'],
       migrations: [__dirname + '/migration/{.ts,*.js}'],
-      migrationsRun: true,
+      migrationsRun: false,
     }),
     UserModule,
   ],
