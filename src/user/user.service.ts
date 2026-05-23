@@ -22,6 +22,20 @@ export class UserService {
             password: passwordHashed,
         });
     }   
+
+    async getUserByIdUsingRelations(userId: number): Promise<UserEntity>{
+        const userrl = await this.userRepository.findOne({
+            where:{
+                id: userId,
+            },
+            relations: ['addresses'],
+        });
+
+        if (!userrl) {
+            throw new NotFoundException('User not found');
+        }
+        return userrl;
+    }
     
     async getAllUser(): Promise<UserEntity[]>{
         return this.userRepository.find();
