@@ -3,14 +3,18 @@ import { LoginDto } from './dto/login.dto';
 import { UserEntity } from '@/user/entities/user.entity';
 import { UserService } from '@/user/user.service';
 import { compare } from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
+import { ReturnLogin } from './dto/returnLogin.dto';
+import { ReturnUserDto } from '@/user/dtos/returnUser.dto';
+import { LoginPayload } from './dto/loginPayload.dto';
 
 @Injectable()
 export class AuthService {
 
     constructor(
-        private readonly userService: UserService) { }
+        private readonly userService: UserService, private jwService: JwtService) { }
 
-    async login(loginDto: LoginDto): Promise<UserEntity> {
+    async login(loginDto: LoginDto): Promise<ReturnLogin> {
         const user = await this.userService.findUserByEmail(loginDto.email);
 
         if (!user) {
@@ -22,6 +26,11 @@ export class AuthService {
             throw new NotFoundException('Password invalid');
         }
 
-        return user;
+        const payload = new LoginPayload(user);
+
+        return {
+            accessToken: this.jwService.sign({ ...payload}),
+            user: new ReturnUserDto(user),
+        };
     }
 }
