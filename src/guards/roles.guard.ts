@@ -1,6 +1,6 @@
 import { LoginPayload } from "@/auth/dto/loginPayload.dto";
 import { ROLES_KEY } from "@/decorators/roles.decorator";
-import { UserTyoe } from "@/user/enum/user-type.enum";
+import { UserType } from "@/user/enum/user-type.enum";
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { JwtService } from "@nestjs/jwt";
@@ -14,7 +14,7 @@ export class RolesGuard implements CanActivate {
     ) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
-        const requiredRoles = this.reflector.getAllAndOverride<UserTyoe[]>(
+        const requiredRoles = this.reflector.getAllAndOverride<UserType[]>(
             ROLES_KEY,
             [context.getHandler(), context.getClass()],
         );
