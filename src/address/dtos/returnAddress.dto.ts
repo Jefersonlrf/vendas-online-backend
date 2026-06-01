@@ -13,6 +13,4 @@ export class ReturnAddressDto{
         this.cep=address.cep;
         this.city=address.city ? new ReturnCityDto(address.city):undefined;
     }
-
-
 }
