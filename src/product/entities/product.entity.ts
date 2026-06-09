@@ -9,7 +9,7 @@ export class ProductEntify {
     @Column({ name: 'name', nullable: false })
     name!: string;
 
-    @Column({ name: 'categoty_id', nullable: false })
+    @Column({ name: 'category_id', nullable: false })
     categoryId!: number;
 
     @Column({ name: 'price', nullable: false })
