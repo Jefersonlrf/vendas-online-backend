@@ -1,8 +1,10 @@
 import { Roles } from '@/decorators/roles.decorator';
 import { UserType } from '@/user/enum/user-type.enum';
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Get, Post, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { ReturnProduct } from './dtos/return-product.dto';
+import { ProductEntify } from './entities/product.entity';
+import { CreateProductDTO } from './dtos/create-product.dto';
 
 @Roles(UserType.Admin,UserType.User)
 @Controller('product')
@@ -16,4 +18,13 @@ export class ProductController {
             (product)=> new ReturnProduct(product),
         )
     }
+
+    @Roles(UserType.Admin)
+    @UsePipes(ValidationPipe)
+    @Post()
+    async createProduct(@Body() createProduct:CreateProductDTO):Promise<ProductEntify>{
+        return this.productService.createProduct(createProduct);
+
+    }
+
 }

@@ -7,6 +7,7 @@ import { CategoryEntify } from './entities/category.entity';
 @Module({
   imports:[TypeOrmModule.forFeature([CategoryEntify])],
   providers: [CategoryService],
-  controllers: [CategoryController]
+  controllers: [CategoryController],
+  exports: [CategoryService],
 })
 export class CategoryModule {}

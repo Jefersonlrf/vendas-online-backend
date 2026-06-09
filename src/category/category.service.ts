@@ -18,8 +18,20 @@ export class CategoryService {
         if (!categories || categories.length === 0) {
             throw new NotFoundException('Categories empty');
         }
-
         return categories;
+    }
+
+    async findCategoryById(categoryId: number):Promise<CategoryEntify>{
+        const category=await this.categoryRepository.findOne({
+            where: {
+                id:categoryId,
+            },
+        });
+
+        if (!category) {
+            throw new NotFoundException(`Category id: ${categoryId} not found`)   
+        }
+        return category;
     }
 
     async findCategoryByName(name: string): Promise<CategoryEntify> {
