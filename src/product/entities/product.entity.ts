@@ -12,7 +12,7 @@ export class ProductEntify {
     @Column({ name: 'category_id', nullable: false })
     categoryId!: number;
 
-    @Column({ name: 'price', nullable: false })
+    @Column({ name: 'price', nullable: false, type: 'decimal', precision: 10, scale: 2 })
     price!: number;
 
     @Column({ name: 'image', nullable: false })
@@ -26,8 +26,8 @@ export class ProductEntify {
 
     @ManyToOne(
         () => CategoryEntify,
-         (category: CategoryEntify) => category.products,
-        )
+        (category: CategoryEntify) => category.products,
+    )
 
     @JoinColumn({ name: 'category_id', referencedColumnName: 'id' })
     category?: CategoryEntify;
