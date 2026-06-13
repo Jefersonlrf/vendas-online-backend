@@ -1,10 +1,11 @@
-import { BadGatewayException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dtos/createUser.dto';
 import { UserEntity } from './entities/user.entity';
-import { hash } from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserType } from './enum/user-type.enum';
+import { updatePasswordDTO } from './dtos/update-password.dto';
+import { createPasswordhashed, validationPassword } from '@/utils/password';
 
 @Injectable()
 export class UserService {
@@ -13,6 +14,7 @@ export class UserService {
         private readonly userRepository: Repository<UserEntity>,
     ) { }
 
+
     async createUser(createUserDto: CreateUserDto): Promise<UserEntity> {
         const user = await this.findUserByEmail(createUserDto.email).catch(() => undefined);
 
@@ -20,8 +22,7 @@ export class UserService {
             throw new BadGatewayException('Email registered in system');
         }
 
-        const saltOrRounds = 10;
-        const passwordHashed = await hash(createUserDto.password, saltOrRounds);
+        const passwordHashed = await createPasswordhashed(createUserDto.password);
 
         return this.userRepository.save({
             ...createUserDto,
@@ -79,5 +80,22 @@ export class UserService {
         }
 
         return user;
+    }
+
+    async updatePasswordUser(updatePasswordDTO: updatePasswordDTO, userId: number): Promise<UserEntity> {
+        const user = await this.findUserById(userId);
+
+        const passwordHashed = await createPasswordhashed(updatePasswordDTO.newPassword);
+
+        const isMatch = await validationPassword(updatePasswordDTO.lastPassword, user.password);
+        
+        if (!isMatch) {
+            throw new BadRequestException('Last password invalid');
+        }
+
+        return this.userRepository.save({
+            ...user,
+            password: passwordHashed,
+        })
     }
 }
