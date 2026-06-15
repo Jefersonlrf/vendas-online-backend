@@ -45,6 +45,12 @@ describe('CategoryService', () => {
     expect(service.findAllCategories()).rejects.toThrow();
   });
 
+  it('should return error in list category exception', async () => {
+    jest.spyOn(categoryRepository, 'find').mockRejectedValue(new Error());
+
+    expect(service.findAllCategories()).rejects.toThrow();
+  });
+
   it('should return error if exist category name', async () => {
     expect(service.createCategory(createCategoryMock)).rejects.toThrow();
   });
