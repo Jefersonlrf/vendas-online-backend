@@ -2,7 +2,7 @@ import { CartEntity } from "@/cart/entities/cart.entity";
 import { ProductEntify } from "@/product/entities/product.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity('produc')
+@Entity('cart_product')
 export class CartProductEntity{
     @PrimaryGeneratedColumn('rowid')
     id!:number;
