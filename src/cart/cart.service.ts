@@ -14,11 +14,19 @@ export class CartService {
         private readonly cartProductService: CartProductService,
     ) { }
 
-    async verifyActiveCart(userId: number): Promise<CartEntity> {
+    async findCartByUserId(userId: number, isRelations?:boolean): Promise<CartEntity> {
+        const relations=  isRelations ? {
+            cartProduct:{
+                product: true
+            }
+        }: undefined;
+        
         const cart = await this.cartRepository.findOne({
             where: {
                 userId,
+                active: true,
             },
+            relations,
         });
 
         if (!cart) {
@@ -36,12 +44,12 @@ export class CartService {
     }
 
     async insertProductInCart(insertCartDTO: InsertCartDTO, userId: number): Promise<CartEntity | null> {
-        const cart = await this.verifyActiveCart(userId).catch(async () => {
+        const cart = await this.findCartByUserId(userId).catch(async () => {
             return this.createCard(userId);
         });
 
         await this.cartProductService.insertProductInCart(insertCartDTO, cart);
 
-        return cart;
+        return this.findCartByUserId(userId, true);
     }
 }
