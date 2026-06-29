@@ -79,12 +79,26 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "moduleNameMapper": {
-    "^@/(.*)$": "<rootDir>/$1"
+      "^@/(.*)$": "<rootDir>/$1"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "**/*.(t|j)s",
+      "!**/*.module.(t|j)s",
+      "!**/main.ts",
+      "!**/**/dto/**",
+      "!**/**/dtos/**",
+      "!**/migration/**",
+      "!**/**/entities/**",
+      "!**/**/decorators/**",
+      "!**/**/guards/**",
+      "!**/**/utils/**"
     ],
     "coverageDirectory": "../coverage",
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ],
     "testEnvironment": "node"
   }
 }

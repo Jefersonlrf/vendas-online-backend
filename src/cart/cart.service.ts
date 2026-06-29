@@ -31,7 +31,6 @@ export class CartService {
     }
 
     async findCartByUserId(userId: number, isRelations?: boolean): Promise<CartEntity> {
-        console.log('findCartByUserId', isRelations);
         const relations = isRelations ? {
             cartProduct: {
                 product: true
