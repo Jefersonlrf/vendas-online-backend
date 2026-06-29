@@ -31,6 +31,7 @@ export class CartService {
     }
 
     async findCartByUserId(userId: number, isRelations?: boolean): Promise<CartEntity> {
+        console.log('findCartByUserId', isRelations);
         const relations = isRelations ? {
             cartProduct: {
                 product: true
@@ -51,7 +52,7 @@ export class CartService {
         return cart;
     }
 
-    async createCard(userId: number): Promise<CartEntity> {
+    async createCart(userId: number): Promise<CartEntity> {
         return await this.cartRepository.save({
             active: true,
             userId,
@@ -60,7 +61,7 @@ export class CartService {
 
     async insertProductInCart(insertCartDTO: InsertCartDTO, userId: number): Promise<CartEntity | null> {
         const cart = await this.findCartByUserId(userId).catch(async () => {
-            return this.createCard(userId);
+            return this.createCart(userId);
         });
 
         await this.cartProductService.insertProductInCart(insertCartDTO, cart);
@@ -79,7 +80,7 @@ export class CartService {
 
     async updateProductInCart(updateCartDTO: UpdateCartDTO, userId: number): Promise<CartEntity> {
         const cart = await this.findCartByUserId(userId).catch(async () => {
-            return this.createCard(userId);
+            return this.createCart(userId);
         });
 
         await this.cartProductService.updateProductInCart(updateCartDTO, cart);
