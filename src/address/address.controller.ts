@@ -21,12 +21,12 @@ export class AddressController {
         return this.addressService.createAddress(createAddressDto, userId);
     }
 
-     @Get()
+    @Get()
     async findAddressByUserId(
         @UserId() userId: number,
     ): Promise<ReturnAddressDto[]> {
-        return ( await this.addressService.findAddressByUserId(userId)).map(
-            (address)=> new ReturnAddressDto(address),
+        return (await this.addressService.findAddressByUserId(userId)).map(
+            (address) => new ReturnAddressDto(address),
         );
     }
 }
