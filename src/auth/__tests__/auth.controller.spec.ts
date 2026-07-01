@@ -17,7 +17,6 @@ describe('AuthController', () => {
                     provide: AuthService,
                     useValue: {
                         login: jest.fn().mockResolvedValue(returnLoginMock),
-                        findAduthByUserId: jest.fn().mockResolvedValue({}),
                     },
                 },
             ],

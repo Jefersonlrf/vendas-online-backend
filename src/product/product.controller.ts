@@ -8,36 +8,36 @@ import { CreateProductDTO } from './dtos/create-product.dto';
 import { DeleteResult } from 'typeorm';
 import { updatePorductDTO } from './dtos/update-product.dto';
 
-@Roles(UserType.Admin,UserType.User)
+@Roles(UserType.Admin, UserType.User)
 @Controller('product')
 export class ProductController {
 
-    constructor(private readonly productService: ProductService){}
+    constructor(private readonly productService: ProductService) { }
 
     @Get()
-    async findAll():Promise<ReturnProduct[]>{
+    async findAll(): Promise<ReturnProduct[]> {
         return (await this.productService.findAll()).map(
-            (product)=> new ReturnProduct(product),
+            (product) => new ReturnProduct(product),
         )
     }
 
     @Roles(UserType.Admin)
     @UsePipes(ValidationPipe)
     @Post()
-    async createProduct(@Body() createProduct:CreateProductDTO):Promise<ProductEntify>{
+    async createProduct(@Body() createProduct: CreateProductDTO): Promise<ProductEntify> {
         return this.productService.createProduct(createProduct)
     }
 
     @Roles(UserType.Admin)
     @Delete('/:productId')
-    async deleteProduct(@Param('productId') productId: number):Promise<DeleteResult>{
+    async deleteProduct(@Param('productId') productId: number): Promise<DeleteResult> {
         return this.productService.deleteProduct(productId);
     }
 
     @Roles(UserType.Admin)
     @UsePipes(ValidationPipe)
     @Put('/:productId')
-    async updateProduct(@Body() updateProduct: updatePorductDTO, @Param('productId') productId: number):Promise<ProductEntify>{
+    async updateProduct(@Body() updateProduct: updatePorductDTO, @Param('productId') productId: number): Promise<ProductEntify> {
         return this.productService.updateProduct(updateProduct, productId);
     }
 }
