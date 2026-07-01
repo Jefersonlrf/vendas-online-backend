@@ -1,6 +1,6 @@
-import { DeleteResult } from "typeorm";
+import { DeleteResult } from 'typeorm';
 
 export const returnDeleteMock: DeleteResult = {
-    raw: [],
-    affected: 1,
-}
+  raw: [],
+  affected: 1,
+};

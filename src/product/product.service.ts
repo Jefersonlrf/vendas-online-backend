@@ -8,56 +8,58 @@ import { updatePorductDTO } from './dtos/update-product.dto';
 
 @Injectable()
 export class ProductService {
+  constructor(
+    @InjectRepository(ProductEntify)
+    private readonly productRepository: Repository<ProductEntify>,
+    private readonly categoryServive: CategoryService,
+  ) {}
 
-    constructor(
-        @InjectRepository(ProductEntify)
-        private readonly productRepository: Repository<ProductEntify>,
-        private readonly categoryServive: CategoryService,
-    ) { }
+  async findAll(): Promise<ProductEntify[]> {
+    const products = await this.productRepository.find();
 
-    async findAll(): Promise<ProductEntify[]> {
-        const products = await this.productRepository.find();
-
-        if (!products || products.length === 0) {
-            throw new NotFoundException('Not found products');
-        }
-
-        return products;
+    if (!products || products.length === 0) {
+      throw new NotFoundException('Not found products');
     }
 
-    async createProduct(createProduct: CreateProductDTO): Promise<ProductEntify> {
-        await this.categoryServive.findCategoryById(createProduct.categoryId);
+    return products;
+  }
 
-        return this.productRepository.save({
-            ...createProduct,
-        });
+  async createProduct(createProduct: CreateProductDTO): Promise<ProductEntify> {
+    await this.categoryServive.findCategoryById(createProduct.categoryId);
+
+    return this.productRepository.save({
+      ...createProduct,
+    });
+  }
+
+  async findProductById(productId: number): Promise<ProductEntify> {
+    const product = await this.productRepository.findOne({
+      where: {
+        id: productId,
+      },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product id: ${productId} not found`);
     }
+    return product;
+  }
 
-    async findProductById(productId: number): Promise<ProductEntify> {
-        const product = await this.productRepository.findOne({
-            where: {
-                id: productId,
-            },
-        });
+  async deleteProduct(productId: number): Promise<DeleteResult> {
+    await this.findProductById(productId);
 
-        if (!product) {
-            throw new NotFoundException(`Product id: ${productId} not found`);
-        }
-        return product;
-    }
+    return this.productRepository.delete({ id: productId });
+  }
 
-    async deleteProduct(productId: number): Promise<DeleteResult> {
-        await this.findProductById(productId);
+  async updateProduct(
+    updateProduct: updatePorductDTO,
+    productId: number,
+  ): Promise<ProductEntify> {
+    const product = await this.findProductById(productId);
 
-        return this.productRepository.delete({ id: productId });
-    }
-
-    async updateProduct(updateProduct: updatePorductDTO, productId: number): Promise<ProductEntify> {
-        const product= await this.findProductById(productId);
-
-        return this.productRepository.save({
-            ...product,
-            ...updateProduct,
-        });
-    }
+    return this.productRepository.save({
+      ...product,
+      ...updateProduct,
+    });
+  }
 }

@@ -10,80 +10,90 @@ const LINE_AFFECTED = 1;
 
 @Injectable()
 export class CartService {
+  constructor(
+    @InjectRepository(CartEntity)
+    private readonly cartRepository: Repository<CartEntity>,
+    private readonly cartProductService: CartProductService,
+  ) {}
 
-    constructor(
-        @InjectRepository(CartEntity)
-        private readonly cartRepository: Repository<CartEntity>,
-        private readonly cartProductService: CartProductService,
-    ) { }
+  async clearCart(userId: number): Promise<DeleteResult> {
+    const cart = await this.findCartByUserId(userId);
+    await this.cartRepository.save({
+      ...cart,
+      active: false,
+    });
 
-    async clearCart(userId: number): Promise<DeleteResult> {
-        const cart = await this.findCartByUserId(userId);
-        await this.cartRepository.save({
-            ...cart,
-            active: false,
-        });
+    return {
+      raw: [],
+      affected: LINE_AFFECTED,
+    };
+  }
 
-        return {
-            raw: [],
-            affected: LINE_AFFECTED,
+  async findCartByUserId(
+    userId: number,
+    isRelations?: boolean,
+  ): Promise<CartEntity> {
+    const relations = isRelations
+      ? {
+          cartProduct: {
+            product: true,
+          },
         }
+      : undefined;
+
+    const cart = await this.cartRepository.findOne({
+      where: {
+        userId,
+        active: true,
+      },
+      relations,
+    });
+
+    if (!cart) {
+      throw new NotFoundException('Cart active not found');
     }
+    return cart;
+  }
 
-    async findCartByUserId(userId: number, isRelations?: boolean): Promise<CartEntity> {
-        const relations = isRelations ? {
-            cartProduct: {
-                product: true
-            }
-        } : undefined;
+  async createCart(userId: number): Promise<CartEntity> {
+    return await this.cartRepository.save({
+      active: true,
+      userId,
+    });
+  }
 
-        const cart = await this.cartRepository.findOne({
-            where: {
-                userId,
-                active: true,
-            },
-            relations,
-        });
+  async insertProductInCart(
+    insertCartDTO: InsertCartDTO,
+    userId: number,
+  ): Promise<CartEntity | null> {
+    const cart = await this.findCartByUserId(userId).catch(async () => {
+      return this.createCart(userId);
+    });
 
-        if (!cart) {
-            throw new NotFoundException('Cart active not found');
-        }
-        return cart;
-    }
+    await this.cartProductService.insertProductInCart(insertCartDTO, cart);
 
-    async createCart(userId: number): Promise<CartEntity> {
-        return await this.cartRepository.save({
-            active: true,
-            userId,
-        });
-    }
+    return this.findCartByUserId(userId, true);
+  }
 
-    async insertProductInCart(insertCartDTO: InsertCartDTO, userId: number): Promise<CartEntity | null> {
-        const cart = await this.findCartByUserId(userId).catch(async () => {
-            return this.createCart(userId);
-        });
+  async deleteProductCart(
+    productId: number,
+    userId: number,
+  ): Promise<DeleteResult> {
+    const cart = await this.findCartByUserId(userId);
 
-        await this.cartProductService.insertProductInCart(insertCartDTO, cart);
+    return this.cartProductService.deleteProductCart(productId, cart.id);
+  }
 
-        return this.findCartByUserId(userId, true);
-    }
+  async updateProductInCart(
+    updateCartDTO: UpdateCartDTO,
+    userId: number,
+  ): Promise<CartEntity> {
+    const cart = await this.findCartByUserId(userId).catch(async () => {
+      return this.createCart(userId);
+    });
 
-    async deleteProductCart(
-        productId: number,
-        userId: number,
-    ): Promise<DeleteResult> {
-        const cart = await this.findCartByUserId(userId);
+    await this.cartProductService.updateProductInCart(updateCartDTO, cart);
 
-        return this.cartProductService.deleteProductCart(productId, cart.id);
-    }
-
-    async updateProductInCart(updateCartDTO: UpdateCartDTO, userId: number): Promise<CartEntity> {
-        const cart = await this.findCartByUserId(userId).catch(async () => {
-            return this.createCart(userId);
-        });
-
-        await this.cartProductService.updateProductInCart(updateCartDTO, cart);
-
-        return cart;
-    }
+    return cart;
+  }
 }

@@ -1,9 +1,8 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class InsertInCity1779009065813 implements MigrationInterface {
-
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        queryRunner.query(`
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             INSERT INTO city("id", "name", "state_id") VALUES (1, 'Abadia de Goiás',9);
             INSERT INTO city("id", "name", "state_id") VALUES (2, 'Abadia dos Dourados',13);
             INSERT INTO city("id", "name", "state_id") VALUES (3, 'Abadiânia',9);
@@ -5576,11 +5575,11 @@ export class InsertInCity1779009065813 implements MigrationInterface {
             INSERT INTO city("id", "name", "state_id") VALUES (5570, 'Zé Doca',10);
             INSERT INTO city("id", "name", "state_id") VALUES (5571, 'Zortéa',24); 
         `);
-    }
+  }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
-        queryRunner.query(`
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             DELETE FROM public.city;            
         `);
-    }
+  }
 }

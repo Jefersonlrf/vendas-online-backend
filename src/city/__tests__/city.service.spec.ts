@@ -1,10 +1,10 @@
+import { CacheService } from '@/cache/cache.service';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { cityMock } from '../__mocks__/city.mock';
 import { CityService } from '../city.service';
 import { CityEntity } from '../entities/city.entity';
-import { CacheService } from '@/cache/cache.service';
-import { cityMock } from '../__mocks__/city.mock';
 
 describe('CityService', () => {
   let service: CityService;
@@ -47,12 +47,12 @@ describe('CityService', () => {
   });
 
   it('should return error findOne not found', async () => {
-    jest.spyOn(cityRepository, 'findOne').mockResolvedValue(undefined);
+    jest.spyOn(cityRepository, 'findOne').mockResolvedValue(undefined!);
 
-    expect(service.findCityById(cityMock.id)).rejects.toThrow();
+    await expect(service.findCityById(cityMock.id)).rejects.toThrow();
   });
 
-    it('should return Cities in getAllCitiesByStateId', async () => {
+  it('should return Cities in getAllCitiesByStateId', async () => {
     const city = await service.getAllCitiesByStateId(cityMock.id);
 
     expect(city).toEqual([cityMock]);

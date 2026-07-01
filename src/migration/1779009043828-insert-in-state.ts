@@ -1,9 +1,8 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class InsertInState1779009043828 implements MigrationInterface {
-
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        queryRunner.query(`
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             INSERT INTO state("id", "name", "uf") VALUES (1, 'Acre', 'AC');
             INSERT INTO state("id", "name", "uf") VALUES (2, 'Alagoas', 'AL');
             INSERT INTO state("id", "name", "uf") VALUES (3, 'Amapá', 'AP');
@@ -32,13 +31,11 @@ export class InsertInState1779009043828 implements MigrationInterface {
             INSERT INTO state("id", "name", "uf") VALUES (26, 'Sergipe', 'SE');
             INSERT INTO state("id", "name", "uf") VALUES (27, 'Tocantins', 'TO');
         `);
-        
-    }
+  }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
-        queryRunner.query(`
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             DELETE FROM public.state;            
-        `)
-    }
-
+        `);
+  }
 }

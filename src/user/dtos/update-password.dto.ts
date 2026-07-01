@@ -1,8 +1,8 @@
-import { IsString } from "class-validator";
+import { IsString } from 'class-validator';
 
 export class updatePasswordDTO {
-    @IsString()
-    newPassword!: string;
-    @IsString()
-    lastPassword!: string;
+  @IsString()
+  newPassword!: string;
+  @IsString()
+  lastPassword!: string;
 }

@@ -9,6 +9,6 @@ import { CategoryModule } from '@/category/category.module';
   imports: [TypeOrmModule.forFeature([ProductEntify]), CategoryModule],
   providers: [ProductService],
   controllers: [ProductController],
-  exports:[ProductService],
+  exports: [ProductService],
 })
 export class ProductModule {}

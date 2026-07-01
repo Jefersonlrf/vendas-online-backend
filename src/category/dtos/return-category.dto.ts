@@ -1,11 +1,11 @@
-import { CategoryEntify } from "../entities/category.entity";
+import { CategoryEntify } from '../entities/category.entity';
 
-export class ReturnCategory{
-    id!: number;
-    name!: string;
+export class ReturnCategory {
+  id!: number;
+  name!: string;
 
-    constructor(categoryEntity:CategoryEntify){
-        this.id=categoryEntity.id;
-        this.name=categoryEntity.name;
-    }
+  constructor(categoryEntity: CategoryEntify) {
+    this.id = categoryEntity.id;
+    this.name = categoryEntity.name;
+  }
 }

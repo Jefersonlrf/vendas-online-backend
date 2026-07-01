@@ -10,13 +10,12 @@ import { StringValue } from 'ms';
     UserModule,
     JwtModule.registerAsync({
       useFactory: () => ({
-        secret: (process.env.JWT_SECRET) as StringValue,
-        signOptions: { expiresIn: (process.env.JWT_EXPIRES_IN) as StringValue},
+        secret: process.env.JWT_SECRET as StringValue,
+        signOptions: { expiresIn: process.env.JWT_EXPIRES_IN as StringValue },
       }),
     }),
   ],
   providers: [AuthService],
-  controllers: [AuthController]
+  controllers: [AuthController],
 })
-
 export class AuthModule {}

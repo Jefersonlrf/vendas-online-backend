@@ -3,7 +3,6 @@ import { CacheService } from '@/cache/cache.service';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { userEntityMock } from '@/user/__mocks__/user.mock';
 
-
 describe('CacheService', () => {
   let service: CacheService;
   let cacheManager: Cache;
@@ -44,4 +43,3 @@ describe('CacheService', () => {
     expect(user).toEqual(result);
   });
 });
-

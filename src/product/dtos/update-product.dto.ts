@@ -1,15 +1,15 @@
-import { IsNumber, IsString } from "class-validator";
+import { IsNumber, IsString } from 'class-validator';
 
-export class updatePorductDTO{
-    @IsNumber()
-    categoryId!:number;
+export class updatePorductDTO {
+  @IsNumber()
+  categoryId!: number;
 
-    @IsString()
-    name!:string;
+  @IsString()
+  name!: string;
 
-    @IsNumber()
-    price!:number;
+  @IsNumber()
+  price!: number;
 
-    @IsString()
-    image!:string;
+  @IsString()
+  image!: string;
 }

@@ -1,16 +1,16 @@
-import { IsInt, IsOptional, IsString } from "class-validator";
+import { IsInt, IsOptional, IsString } from 'class-validator';
 
-export class CreateAddressDto{
-    @IsString()
-    @IsOptional()
-    complement?:string;
+export class CreateAddressDto {
+  @IsString()
+  @IsOptional()
+  complement?: string;
 
-    @IsInt()
-    numberAddress!: number;
+  @IsInt()
+  numberAddress!: number;
 
-    @IsString()
-    cep!:string;
+  @IsString()
+  cep!: string;
 
-    @IsInt()
-    cityId!:number;
+  @IsInt()
+  cityId!: number;
 }
