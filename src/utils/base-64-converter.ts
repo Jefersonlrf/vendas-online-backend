@@ -11,5 +11,5 @@ export const authorizationToLoginPayload = (
 
   return JSON.parse(
     Buffer.from(authorizationSpLited[1], 'base64').toString('ascii'),
-  );
+  ) as LoginPayload;
 };
