@@ -1,7 +1,11 @@
+import { OrderEntity } from '@/order/entities/order.entity';
+import { ProductEntify } from '@/product/entities/product.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -28,4 +32,12 @@ export class OrderProductEntity {
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt!: Date;
+
+  @ManyToMany(() => OrderEntity, (order) => order.ordersProduct)
+  @JoinColumn({ name: 'order_id', referencedColumnName: 'id' })
+  order?: OrderEntity;
+
+  @ManyToMany(() => ProductEntify, (product) => product.ordersProduct)
+  @JoinColumn({ name: 'product_id', referencedColumnName: 'id' })
+  product?: ProductEntify;
 }
