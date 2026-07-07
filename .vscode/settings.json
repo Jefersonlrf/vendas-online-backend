@@ -3,11 +3,11 @@
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
+  "eslint.useFlatConfig": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "always",
     "source.organizeImports": "always"
   },
-  "eslint.useFlatConfig": true,
   "eslint.validate": [
     "javascript",
     "typescript"

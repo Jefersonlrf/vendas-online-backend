@@ -17,7 +17,7 @@ export default tseslint.config(
 
   ...tseslint.configs.recommended,
 
-  ...tseslint.configs.recommendedTypeChecked.map(config => ({
+  ...tseslint.configs.recommended.map(config => ({
     ...config,
     files: [
       '**/*.service.ts',
