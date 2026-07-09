@@ -1,3 +1,4 @@
+import { UserId } from '@/decorators/user-id.decorator';
 import {
   Body,
   Controller,
@@ -18,7 +19,8 @@ export class OrderController {
   async createOrder(
     @Body() createOrderDTO: CreateOrderDTO,
     @Param('cartId') cartId: number,
+    @UserId() userId: number,
   ) {
-    return this.orderService.createOrder(createOrderDTO, cartId);
+    return this.orderService.createOrder(createOrderDTO, cartId, userId);
   }
 }

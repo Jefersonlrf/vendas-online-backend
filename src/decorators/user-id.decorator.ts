@@ -5,6 +5,7 @@ import { Request } from 'express';
 export const UserId = createParamDecorator(
   (_: unknown, ctx: ExecutionContext): number | undefined => {
     const req = ctx.switchToHttp().getRequest<Request>();
+    console.log(req.headers);
 
     const authorization = req.headers.authorization;
 
