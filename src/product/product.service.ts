@@ -1,10 +1,10 @@
+import { CategoryService } from '@/category/category.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ProductEntify } from './entities/product.entity';
-import { DeleteResult, Repository } from 'typeorm';
+import { DeleteResult, In, Repository } from 'typeorm';
 import { CreateProductDTO } from './dtos/create-product.dto';
-import { CategoryService } from '@/category/category.service';
 import { updatePorductDTO } from './dtos/update-product.dto';
+import { ProductEntify } from './entities/product.entity';
 
 @Injectable()
 export class ProductService {
@@ -14,8 +14,18 @@ export class ProductService {
     private readonly categoryServive: CategoryService,
   ) {}
 
-  async findAll(): Promise<ProductEntify[]> {
-    const products = await this.productRepository.find();
+  async findAll(productId?: number[]): Promise<ProductEntify[]> {
+    let findOptions = {};
+
+    if (productId && productId.length > 0) {
+      findOptions = {
+        where: {
+          id: In(productId),
+        },
+      };
+    }
+
+    const products = await this.productRepository.find(findOptions);
 
     if (!products || products.length === 0) {
       throw new NotFoundException('Not found products');
@@ -23,6 +33,8 @@ export class ProductService {
 
     return products;
   }
+
+  async findProductByListProductId() {}
 
   async createProduct(createProduct: CreateProductDTO): Promise<ProductEntify> {
     await this.categoryServive.findCategoryById(createProduct.categoryId);

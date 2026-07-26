@@ -24,7 +24,13 @@ export class OrderProductEntity {
   @Column({ name: 'amount', nullable: false })
   amount!: Date;
 
-  @Column({ name: 'price', nullable: false })
+  @Column({
+    name: 'price',
+    nullable: false,
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+  })
   price!: number;
 
   @CreateDateColumn({ name: 'created_at' })
