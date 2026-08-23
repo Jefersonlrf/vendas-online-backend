@@ -1,8 +1,10 @@
+import { cartProductMock } from '@/cart-product/__mocks__/cart-product.mock';
 import { cartMock } from '@/cart/__mocks__/cart.mock';
 import {
   createOrderCreditCardMock,
   createOrderPixMock,
 } from '@/order/__mocks__/create-order.mock';
+import { PaymentType } from '@/payment-status/enums/payment-type.enum';
 import { productMock } from '@/product/__mocks__/product.mock';
 import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -87,5 +89,54 @@ describe('PaymentService', () => {
         cartMock,
       ),
     ).rejects.toThrow(BadRequestException);
+  });
+
+  it('should return final price 0 in cartProduct undefined', async () => {
+    const spy = jest.spyOn(paymentRepository, 'save');
+    await service.createPayment(
+      createOrderCreditCardMock,
+      [productMock],
+      cartMock,
+    );
+
+    const savePayment: PaymentCreditCardEntity = spy.mock
+      .calls[0][0] as PaymentCreditCardEntity;
+
+    expect(savePayment.finalPrice).toEqual(0);
+  });
+
+  it('should return final price send cartProduct', async () => {
+    const spy = jest.spyOn(paymentRepository, 'save');
+    await service.createPayment(createOrderCreditCardMock, [productMock], {
+      ...cartMock,
+      cartProduct: [cartProductMock],
+    });
+
+    const savePayment: PaymentCreditCardEntity = spy.mock
+      .calls[0][0] as PaymentCreditCardEntity;
+
+    expect(savePayment.finalPrice).toEqual(186420.5);
+  });
+
+  it('should return all data in save payment', async () => {
+    const spy = jest.spyOn(paymentRepository, 'save');
+    await service.createPayment(createOrderCreditCardMock, [productMock], {
+      ...cartMock,
+      cartProduct: [cartProductMock],
+    });
+
+    const savePayment: PaymentCreditCardEntity = spy.mock
+      .calls[0][0] as PaymentCreditCardEntity;
+
+    const paymentCreditCard: PaymentCreditCardEntity =
+      new PaymentCreditCardEntity(
+        PaymentType.Done,
+        186420.5,
+        0,
+        186420.5,
+        createOrderCreditCardMock,
+      );
+
+    expect(savePayment).toEqual(paymentCreditCard);
   });
 });

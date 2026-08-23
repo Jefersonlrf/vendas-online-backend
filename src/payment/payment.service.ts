@@ -17,11 +17,11 @@ export class PaymentService {
     private readonly paymentRepository: Repository<PaymentEntity>,
   ) {}
 
-  generateFinalPrice(cart: CartEntity, products: ProductEntify[]) {
+  generateFinalPrice(cart: CartEntity, products: ProductEntify[]): number {
     if (!cart.cartProduct || cart.cartProduct.length === 0) {
       return 0;
     }
-    return (
+    return Number(
       cart.cartProduct
         .map((cartProduct: CartProductEntity) => {
           const product = products.find(
@@ -33,8 +33,8 @@ export class PaymentService {
 
           return 0;
         })
-        .reduce((accumulator, currentValue) => accumulator + currentValue, 0) ??
-      0
+        .reduce((accumulator, currentValue) => accumulator + currentValue, 0)
+        .toFixed(2) ?? 0,
     );
   }
 
