@@ -36,6 +36,7 @@ describe('PaymentService', () => {
     }).compile();
 
     service = module.get<PaymentService>(PaymentService);
+
     paymentRepository = module.get<Repository<PaymentEntity>>(
       getRepositoryToken(PaymentEntity),
     );
@@ -46,97 +47,202 @@ describe('PaymentService', () => {
     expect(paymentRepository).toBeDefined();
   });
 
-  it('should save payment pix in DB', async () => {
-    const spy = jest.spyOn(paymentRepository, 'save');
-    const payment = await service.createPayment(
-      createOrderPixMock,
-      [productMock],
-      cartMock,
-    );
+  describe('createPayment', () => {
+    it('should save payment pix in DB', async () => {
+      const spy = jest.spyOn(paymentRepository, 'save');
 
-    const savePayment: PaymentPixEntity = spy.mock
-      .calls[0][0] as PaymentPixEntity;
-
-    expect(payment).toEqual(paymentMock);
-    expect(savePayment.code).toEqual(paymentPixMock.code);
-    expect(savePayment.datePayment).toEqual(paymentPixMock.datePayment);
-  });
-
-  it('should save payment credit card in DB', async () => {
-    const spy = jest.spyOn(paymentRepository, 'save');
-    const payment = await service.createPayment(
-      createOrderCreditCardMock,
-      [productMock],
-      cartMock,
-    );
-
-    const savePayment: PaymentCreditCardEntity = spy.mock
-      .calls[0][0] as PaymentCreditCardEntity;
-
-    expect(payment).toEqual(paymentMock);
-    expect(savePayment.amountPayments).toEqual(
-      paymentCreditCardMock.amountPayments,
-    );
-  });
-
-  it('should return exception in not send data', async () => {
-    await expect(
-      service.createPayment(
-        {
-          addressId: createOrderCreditCardMock.addressId,
-        },
+      const payment = await service.createPayment(
+        createOrderPixMock,
         [productMock],
         cartMock,
-      ),
-    ).rejects.toThrow(BadRequestException);
-  });
-
-  it('should return final price 0 in cartProduct undefined', async () => {
-    const spy = jest.spyOn(paymentRepository, 'save');
-    await service.createPayment(
-      createOrderCreditCardMock,
-      [productMock],
-      cartMock,
-    );
-
-    const savePayment: PaymentCreditCardEntity = spy.mock
-      .calls[0][0] as PaymentCreditCardEntity;
-
-    expect(savePayment.finalPrice).toEqual(0);
-  });
-
-  it('should return final price send cartProduct', async () => {
-    const spy = jest.spyOn(paymentRepository, 'save');
-    await service.createPayment(createOrderCreditCardMock, [productMock], {
-      ...cartMock,
-      cartProduct: [cartProductMock],
-    });
-
-    const savePayment: PaymentCreditCardEntity = spy.mock
-      .calls[0][0] as PaymentCreditCardEntity;
-
-    expect(savePayment.finalPrice).toEqual(186420.5);
-  });
-
-  it('should return all data in save payment', async () => {
-    const spy = jest.spyOn(paymentRepository, 'save');
-    await service.createPayment(createOrderCreditCardMock, [productMock], {
-      ...cartMock,
-      cartProduct: [cartProductMock],
-    });
-
-    const savePayment: PaymentCreditCardEntity = spy.mock
-      .calls[0][0] as PaymentCreditCardEntity;
-
-    const paymentCreditCard: PaymentCreditCardEntity =
-      new PaymentCreditCardEntity(
-        PaymentType.Done,
-        186420.5,
-        0,
-        186420.5,
-        createOrderCreditCardMock,
       );
 
-    expect(savePayment).toEqual(paymentCreditCard);
+      const savePayment: PaymentPixEntity = spy.mock
+        .calls[0][0] as PaymentPixEntity;
+
+      expect(payment).toEqual(paymentMock);
+      expect(savePayment.code).toEqual(paymentPixMock.code);
+      expect(savePayment.datePayment).toEqual(paymentPixMock.datePayment);
+    });
+
+    it('should save payment credit card in DB', async () => {
+      const spy = jest.spyOn(paymentRepository, 'save');
+
+      const payment = await service.createPayment(
+        createOrderCreditCardMock,
+        [productMock],
+        cartMock,
+      );
+
+      const savePayment: PaymentCreditCardEntity = spy.mock
+        .calls[0][0] as PaymentCreditCardEntity;
+
+      expect(payment).toEqual(paymentMock);
+      expect(savePayment.amountPayments).toEqual(
+        paymentCreditCardMock.amountPayments,
+      );
+    });
+
+    it('should return exception when payment data is not sent', async () => {
+      await expect(
+        service.createPayment(
+          {
+            addressId: createOrderCreditCardMock.addressId,
+          },
+          [productMock],
+          cartMock,
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should return final price 0 when cartProduct is undefined', async () => {
+      const spy = jest.spyOn(paymentRepository, 'save');
+
+      await service.createPayment(
+        createOrderCreditCardMock,
+        [productMock],
+        cartMock,
+      );
+
+      const savePayment: PaymentCreditCardEntity = spy.mock
+        .calls[0][0] as PaymentCreditCardEntity;
+
+      expect(savePayment.finalPrice).toEqual(0);
+    });
+
+    it('should return final price 0 when cartProduct is empty', async () => {
+      const spy = jest.spyOn(paymentRepository, 'save');
+
+      await service.createPayment(createOrderCreditCardMock, [productMock], {
+        ...cartMock,
+        cartProduct: [],
+      });
+
+      const savePayment: PaymentCreditCardEntity = spy.mock
+        .calls[0][0] as PaymentCreditCardEntity;
+
+      expect(savePayment.finalPrice).toEqual(0);
+    });
+
+    it('should return final price when cartProduct is provided', async () => {
+      const spy = jest.spyOn(paymentRepository, 'save');
+
+      await service.createPayment(createOrderCreditCardMock, [productMock], {
+        ...cartMock,
+        cartProduct: [cartProductMock],
+      });
+
+      const savePayment: PaymentCreditCardEntity = spy.mock
+        .calls[0][0] as PaymentCreditCardEntity;
+
+      expect(savePayment.finalPrice).toEqual(186420.5);
+    });
+
+    it('should return final price 0 when product does not exist', async () => {
+      const spy = jest.spyOn(paymentRepository, 'save');
+
+      await service.createPayment(createOrderCreditCardMock, [], {
+        ...cartMock,
+        cartProduct: [cartProductMock],
+      });
+
+      const savePayment: PaymentCreditCardEntity = spy.mock
+        .calls[0][0] as PaymentCreditCardEntity;
+
+      expect(savePayment.finalPrice).toEqual(0);
+    });
+
+    it('should return all data in save payment', async () => {
+      const spy = jest.spyOn(paymentRepository, 'save');
+
+      await service.createPayment(createOrderCreditCardMock, [productMock], {
+        ...cartMock,
+        cartProduct: [cartProductMock],
+      });
+
+      const savePayment: PaymentCreditCardEntity = spy.mock
+        .calls[0][0] as PaymentCreditCardEntity;
+
+      const paymentCreditCard: PaymentCreditCardEntity =
+        new PaymentCreditCardEntity(
+          PaymentType.Done,
+          186420.5,
+          0,
+          186420.5,
+          createOrderCreditCardMock,
+        );
+
+      expect(savePayment).toEqual(paymentCreditCard);
+    });
+
+    it('should throw when save credit card fails', async () => {
+      jest.spyOn(paymentRepository, 'save').mockRejectedValueOnce(new Error());
+
+      await expect(
+        service.createPayment(createOrderCreditCardMock, [productMock], {
+          ...cartMock,
+          cartProduct: [cartProductMock],
+        }),
+      ).rejects.toThrow(Error);
+    });
+
+    it('should throw when save pix fails', async () => {
+      jest.spyOn(paymentRepository, 'save').mockRejectedValueOnce(new Error());
+
+      await expect(
+        service.createPayment(createOrderPixMock, [productMock], {
+          ...cartMock,
+          cartProduct: [cartProductMock],
+        }),
+      ).rejects.toThrow(Error);
+    });
+  });
+
+  describe('generateFinalPrice', () => {
+    it('should return 0 when cartProduct is undefined', () => {
+      const cart = {
+        ...cartMock,
+        cartProduct: undefined,
+      };
+
+      const finalPrice = service.generateFinalPrice(cart, [productMock]);
+
+      expect(finalPrice).toEqual(0);
+    });
+
+    it('should return 0 when cartProduct is empty', () => {
+      const cart = {
+        ...cartMock,
+        cartProduct: [],
+      };
+
+      const finalPrice = service.generateFinalPrice(cart, [productMock]);
+
+      expect(finalPrice).toEqual(0);
+    });
+
+    it('should calculate final price correctly', () => {
+      const finalPrice = service.generateFinalPrice(
+        {
+          ...cartMock,
+          cartProduct: [cartProductMock],
+        },
+        [productMock],
+      );
+
+      expect(finalPrice).toEqual(186420.5);
+    });
+
+    it('should return 0 when product is not found', () => {
+      const finalPrice = service.generateFinalPrice(
+        {
+          ...cartMock,
+          cartProduct: [cartProductMock],
+        },
+        [],
+      );
+
+      expect(finalPrice).toEqual(0);
+    });
   });
 });

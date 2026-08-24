@@ -1,3 +1,4 @@
+import { BadGatewayException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -22,6 +23,7 @@ describe('UserService', () => {
           provide: getRepositoryToken(UserEntity),
           useValue: {
             findOne: jest.fn().mockResolvedValue(userEntityMock),
+            find: jest.fn().mockResolvedValue([userEntityMock]),
             save: jest.fn().mockResolvedValue(userEntityMock),
           },
         },
@@ -29,6 +31,7 @@ describe('UserService', () => {
     }).compile();
 
     service = module.get<UserService>(UserService);
+
     userRepository = module.get<Repository<UserEntity>>(
       getRepositoryToken(UserEntity),
     );
@@ -39,80 +42,155 @@ describe('UserService', () => {
     expect(userRepository).toBeDefined();
   });
 
-  it('should return in findUserByEmail', async () => {
-    const user = await service.findUserByEmail(userEntityMock.email);
-    expect(user).toEqual(userEntityMock);
+  describe('findUserByEmail', () => {
+    it('should return user by email', async () => {
+      const user = await service.findUserByEmail(userEntityMock.email);
+
+      expect(user).toEqual(userEntityMock);
+    });
+
+    it('should throw when user email is not found', async () => {
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(null);
+
+      await expect(
+        service.findUserByEmail(userEntityMock.email),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw when database fails', async () => {
+      jest.spyOn(userRepository, 'findOne').mockRejectedValueOnce(new Error());
+
+      await expect(
+        service.findUserByEmail(userEntityMock.email),
+      ).rejects.toThrow(Error);
+    });
   });
 
-  it('should return error in findUserByEmail', async () => {
-    jest.spyOn(userRepository, 'findOne').mockResolvedValue(undefined!);
+  describe('findUserById', () => {
+    it('should return user by id', async () => {
+      const user = await service.findUserById(userEntityMock.id);
 
-    await expect(
-      service.findUserByEmail(userEntityMock.email),
-    ).rejects.toThrow();
+      expect(user).toEqual(userEntityMock);
+    });
+
+    it('should throw when user id is not found', async () => {
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(null);
+
+      await expect(service.findUserById(userEntityMock.id)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('should throw when database fails', async () => {
+      jest.spyOn(userRepository, 'findOne').mockRejectedValueOnce(new Error());
+
+      await expect(service.findUserById(userEntityMock.id)).rejects.toThrow(
+        Error,
+      );
+    });
   });
 
-  it('should return error in findUserByEmail (error DB', async () => {
-    jest.spyOn(userRepository, 'findOne').mockRejectedValueOnce(new Error());
+  describe('getUserByIdUsingRelations', () => {
+    it('should return user with relations', async () => {
+      const user = await service.getUserByIdUsingRelations(userEntityMock.id);
 
-    await expect(
-      service.findUserByEmail(userEntityMock.email),
-    ).rejects.toThrow();
+      expect(user).toEqual(userEntityMock);
+    });
+
+    it('should throw when user is not found', async () => {
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(null);
+
+      await expect(
+        service.getUserByIdUsingRelations(userEntityMock.id),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw when database fails', async () => {
+      jest.spyOn(userRepository, 'findOne').mockRejectedValueOnce(new Error());
+
+      await expect(
+        service.getUserByIdUsingRelations(userEntityMock.id),
+      ).rejects.toThrow(Error);
+    });
   });
 
-  it('should return in findUserById', async () => {
-    const user = await service.findUserById(userEntityMock.id);
-    expect(user).toEqual(userEntityMock);
+  describe('getAllUser', () => {
+    it('should return all users', async () => {
+      const users = await service.getAllUser();
+
+      expect(users).toEqual([userEntityMock]);
+    });
+
+    it('should throw when database fails', async () => {
+      jest.spyOn(userRepository, 'find').mockRejectedValueOnce(new Error());
+
+      await expect(service.getAllUser()).rejects.toThrow(Error);
+    });
   });
 
-  it('should return error in findUserById', async () => {
-    jest.spyOn(userRepository, 'findOne').mockResolvedValue(undefined!);
+  describe('createUser', () => {
+    it('should throw when email is already registered', async () => {
+      jest.spyOn(service, 'findUserByEmail').mockResolvedValue(userEntityMock);
 
-    await expect(service.findUserById(userEntityMock.id)).rejects.toThrow();
+      await expect(service.createUser(createUserMock)).rejects.toThrow(
+        BadGatewayException,
+      );
+    });
+
+    it('should create user when email is not registered', async () => {
+      jest
+        .spyOn(service, 'findUserByEmail')
+        .mockRejectedValue(new NotFoundException());
+
+      const user = await service.createUser(createUserMock);
+
+      expect(user).toEqual(userEntityMock);
+    });
+
+    it('should throw when database fails while saving user', async () => {
+      jest
+        .spyOn(service, 'findUserByEmail')
+        .mockRejectedValue(new NotFoundException());
+
+      jest.spyOn(userRepository, 'save').mockRejectedValueOnce(new Error());
+
+      await expect(service.createUser(createUserMock)).rejects.toThrow(Error);
+    });
   });
 
-  it('should return error in findUserById (error DB', async () => {
-    jest.spyOn(userRepository, 'findOne').mockRejectedValueOnce(new Error());
+  describe('updatePasswordUser', () => {
+    it('should update user password', async () => {
+      const user = await service.updatePasswordUser(
+        updatePasswordMock,
+        userEntityMock.id,
+      );
 
-    await expect(service.findUserById(userEntityMock.id)).rejects.toThrow();
-  });
+      expect(user).toEqual(userEntityMock);
+    });
 
-  it('should return in getUserByIdUsingRelations', async () => {
-    const user = await service.getUserByIdUsingRelations(userEntityMock.id);
-    expect(user).toEqual(userEntityMock);
-  });
+    it('should throw when last password is invalid', async () => {
+      await expect(
+        service.updatePasswordUser(
+          updatePasswordInvalidMock,
+          userEntityMock.id,
+        ),
+      ).rejects.toThrow();
+    });
 
-  it('should return error if user exist', async () => {
-    await expect(service.createUser(createUserMock)).rejects.toThrow();
-  });
+    it('should throw when user is not found', async () => {
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(null);
 
-  it('should return error if user not exist', async () => {
-    jest.spyOn(userRepository, 'findOne').mockRejectedValueOnce(undefined);
-    const user = await service.createUser(createUserMock);
+      await expect(
+        service.updatePasswordUser(updatePasswordMock, userEntityMock.id),
+      ).rejects.toThrow(NotFoundException);
+    });
 
-    expect(user).toEqual(userEntityMock);
-  });
+    it('should throw when database fails while saving password', async () => {
+      jest.spyOn(userRepository, 'save').mockRejectedValueOnce(new Error());
 
-  it('should return user in update password', async () => {
-    const user = await service.updatePasswordUser(
-      updatePasswordMock,
-      userEntityMock.id,
-    );
-
-    expect(user).toEqual(userEntityMock);
-  });
-
-  it('should return invalid password in error', async () => {
-    await expect(
-      service.updatePasswordUser(updatePasswordInvalidMock, userEntityMock.id),
-    ).rejects.toThrow();
-  });
-
-  it('should return error in user not exist', async () => {
-    jest.spyOn(userRepository, 'findOne').mockResolvedValue(undefined!);
-
-    await expect(
-      service.updatePasswordUser(updatePasswordMock, userEntityMock.id),
-    ).rejects.toThrow();
+      await expect(
+        service.updatePasswordUser(updatePasswordMock, userEntityMock.id),
+      ).rejects.toThrow(Error);
+    });
   });
 });
