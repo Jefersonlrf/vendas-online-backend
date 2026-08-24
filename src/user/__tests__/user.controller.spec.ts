@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { createUserMock } from '../__mocks__/createUser.mock';
 import { updatePasswordMock } from '../__mocks__/update-user.mock';
 import { userEntityMock } from '../__mocks__/user.mock';
+import { ReturnUserDto } from '../dtos/returnUser.dto';
 import { UserController } from '../user.controller';
 import { UserService } from '../user.service';
 
@@ -75,5 +76,11 @@ describe('UserController', () => {
     );
 
     expect(user).toEqual(userEntityMock);
+  });
+
+  it('should return ReturnUserEntity in getInfoUser', async () => {
+    const user = await userController.getInfoUser(userEntityMock.id);
+
+    expect(user).toEqual(new ReturnUserDto(userEntityMock));
   });
 });

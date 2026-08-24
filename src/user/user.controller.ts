@@ -1,3 +1,5 @@
+import { Roles } from '@/decorators/roles.decorator';
+import { UserId } from '@/decorators/user-id.decorator';
 import {
   Body,
   Controller,
@@ -9,13 +11,11 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import type { CreateUserDto } from './dtos/createUser.dto';
-import { UserService } from './user.service';
-import { UserEntity } from './entities/user.entity';
 import { ReturnUserDto } from './dtos/returnUser.dto';
 import { updatePasswordDTO } from './dtos/update-password.dto';
-import { UserId } from '@/decorators/user-id.decorator';
-import { Roles } from '@/decorators/roles.decorator';
+import { UserEntity } from './entities/user.entity';
 import { UserType } from './enum/user-type.enum';
+import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
@@ -28,7 +28,7 @@ export class UserController {
   }
 
   @Roles(UserType.Admin)
-  @Get()
+  @Get('/all')
   async getAllUser(): Promise<ReturnUserDto[]> {
     return (await this.userService.getAllUser()).map(
       (UserEntity) => new ReturnUserDto(UserEntity),
@@ -51,5 +51,13 @@ export class UserController {
     @UserId() userId: number,
   ): Promise<UserEntity> {
     return this.userService.updatePasswordUser(updatePasswordDTO, userId);
+  }
+
+  @Roles(UserType.Admin, UserType.User)
+  @Get()
+  async getInfoUser(@UserId() userId: number): Promise<ReturnUserDto> {
+    return new ReturnUserDto(
+      await this.userService.getUserByIdUsingRelations(userId),
+    );
   }
 }
