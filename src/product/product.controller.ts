@@ -11,12 +11,12 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { ProductService } from './product.service';
-import { ReturnProduct } from './dtos/return-product.dto';
-import { ProductEntify } from './entities/product.entity';
-import { CreateProductDTO } from './dtos/create-product.dto';
 import { DeleteResult } from 'typeorm';
+import { CreateProductDTO } from './dtos/create-product.dto';
+import { ReturnProduct } from './dtos/return-product.dto';
 import { updatePorductDTO } from './dtos/update-product.dto';
+import { ProductEntify } from './entities/product.entity';
+import { ProductService } from './product.service';
 
 @Roles(UserType.Admin, UserType.User)
 @Controller('product')
@@ -25,7 +25,7 @@ export class ProductController {
 
   @Get()
   async findAll(): Promise<ReturnProduct[]> {
-    return (await this.productService.findAll()).map(
+    return (await this.productService.findAll([], true)).map(
       (product) => new ReturnProduct(product),
     );
   }
